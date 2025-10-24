@@ -1,13 +1,6 @@
-#!/bin/bash
-echo "==============================="
-echo "Starting SSH + WebSSH (tmate)..."
-echo "User: root"
-echo "Password: root"
-echo "Port: 22 (internal)"
-echo "==============================="
-
-# SSH starten
+#!/usr/bin/env bash
+# Start SSH
 /usr/sbin/sshd
 
-# tmate Session starten (WebSSH)
-tmate -F
+# Start Wetty WebSSH auf dem Render-Port
+wetty --
