@@ -1,29 +1,20 @@
-# Base image
-FROM ubuntu:22.04
+# Dockerfile für sshx.io auf Render
+FROM ubuntu:24.04
 
-# Environment variables
-ENV DEBIAN_FRONTEND=noninteractive
-ENV WORKDIR=/data
-ENV SSHX_LINK_FILE=/data/sshx_link.txt
-
-# Install dependencies
+# Install Basics
 RUN apt-get update && apt-get install -y \
     curl \
-    screen \
-    sudo \
+    bash \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Create workdir (persistent)
-RUN mkdir -p $WORKDIR
-VOLUME ["$WORKDIR"]
-WORKDIR $WORKDIR
+# Arbeitsverzeichnis für Persistenz
+VOLUME ["/data"]
+WORKDIR /data
 
-# Copy start script
+# Kopiere start.sh
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-# Expose default SSHX port (optional)
-EXPOSE 2222
-
-# Start script on container run
+# Start
 CMD ["/start.sh"]
