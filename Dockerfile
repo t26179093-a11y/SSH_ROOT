@@ -19,8 +19,8 @@ VOLUME ["$WORKDIR"]
 WORKDIR $WORKDIR
 
 # Copy start script
-COPY sshx-start.sh /sshx-start.sh
-RUN chmod +x /sshx-start.sh
+COPY sshx-start.sh /start.sh
+RUN chmod +x /start.sh
 
 # Expose default SSHX port (optional)
 EXPOSE 2222
