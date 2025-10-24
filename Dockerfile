@@ -1,26 +1,29 @@
-FROM ubuntu:24.04
+# Base image
+FROM ubuntu:22.04
 
+# Environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV WORKDIR=/data
+ENV SSHX_LINK_FILE=/data/sshx_link.txt
+
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    openssh-server \
-    sudo \
-    nodejs npm \
-    python3-distutils python3-dev build-essential libffi-dev \
     curl \
+    screen \
+    sudo \
     && rm -rf /var/lib/apt/lists/*
 
-# Wetty installieren
-RUN npm install -g wetty
+# Create workdir (persistent)
+RUN mkdir -p $WORKDIR
+VOLUME ["$WORKDIR"]
+WORKDIR $WORKDIR
 
-# SSH einrichten
-RUN mkdir /var/run/sshd
-RUN echo "root:root" | chpasswd
-RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
+# Copy start script
+COPY sshx-start.sh /sshx-start.sh
+RUN chmod +x /sshx-start.sh
 
-COPY start.sh /start.sh
-RUN chmod +x /start.sh
+# Expose default SSHX port (optional)
+EXPOSE 2222
 
-EXPOSE 22
-EXPOSE 8080
-
+# Start script on container run
 CMD ["/start.sh"]
