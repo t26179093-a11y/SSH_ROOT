@@ -1,34 +1,28 @@
-# ===========================
-# Dockerfile für SSH auf Render
-# ===========================
+# Basis-Image
 FROM ubuntu:24.04
 
+# Set environment
 ENV DEBIAN_FRONTEND=noninteractive
+WORKDIR /root
 
-# Update & Basis Tools
+# Install dependencies
 RUN apt-get update && apt-get install -y \
-    openssh-server \
-    sudo \
-    nano \
-    curl \
-    git \
-    iproute2 \
-    net-tools \
-    vim \
-    && rm -rf /var/lib/apt/lists/*
+    qemu-kvm qemu-utils qemu-system-x86 cloud-image-utils cloud-init \
+    openssh-server sudo git wget python3 python3-pip nano curl \
+    && apt-get clean
 
-# SSH Konfiguration
-RUN mkdir /var/run/sshd
-RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
-RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+# SSH konfigurieren
+RUN mkdir /var/run/sshd \
+    && echo 'root:root' | chpasswd \
+    && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+    && sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config
 
-# Root Passwort setzen
-RUN echo "root:root" | chpasswd
-
-# Start Script kopieren
+# Script kopieren und ausführbar machen
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
+# Port für SSH
 EXPOSE 22
 
+# Startscript ausführen
 CMD ["/start.sh"]
